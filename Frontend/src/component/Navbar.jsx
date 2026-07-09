@@ -3,8 +3,12 @@ import { Link } from "react-router-dom";
 import { Search, Moon, Sun } from "lucide-react";
 import Login from "./Login";
 import Signup from "./Signup";
+import Logout from "./Logout";
+import { useAuth } from "../context/AutheProvider";
 
 const Navbar = () => {
+  const { authUser } = useAuth();
+
   const [sticky, setSticky] = useState(false);
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") || "light"
@@ -19,7 +23,9 @@ const Navbar = () => {
 
     window.addEventListener("scroll", handleScroll);
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -52,17 +58,30 @@ const Navbar = () => {
             <li>
               <Link to="/">Home</Link>
             </li>
-            <li>
-              <Link to="/course">Course</Link>
-            </li>
-            
-  <li>
-    <Link to="/contact">Contact</Link>
-  </li>
 
-  <li>
-    <Link to="/about">About</Link>
-  </li>
+            <li>
+              <Link
+                to={authUser ? "/course" : "#"}
+                onClick={(e) => {
+                  if (!authUser) {
+                    e.preventDefault();
+                    document
+                      .getElementById("login_modal")
+                      .showModal();
+                  }
+                }}
+              >
+                Course
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/contact">Contact</Link>
+            </li>
+
+            <li>
+              <Link to="/about">About</Link>
+            </li>
           </ul>
 
           <div className="flex items-center gap-4">
@@ -70,7 +89,7 @@ const Navbar = () => {
               <input
                 type="text"
                 placeholder="Search"
-                className="w-56 border rounded-lg py-2 pl-4 pr-10"
+                className="w-56 border rounded-lg py-2 pl-4 pr-10 dark:bg-slate-800 dark:border-gray-600"
               />
 
               <Search
@@ -87,14 +106,20 @@ const Navbar = () => {
               {theme === "light" ? <Moon /> : <Sun />}
             </button>
 
-            <button
-              className="bg-pink-500 text-white px-5 py-2 rounded-lg"
-              onClick={() =>
-                document.getElementById("login_modal").showModal()
-              }
-            >
-              Login
-            </button>
+            {authUser ? (
+              <Logout />
+            ) : (
+              <button
+                className="bg-pink-500 text-white px-5 py-2 rounded-lg"
+                onClick={() =>
+                  document
+                    .getElementById("login_modal")
+                    .showModal()
+                }
+              >
+                Login
+              </button>
+            )}
           </div>
         </div>
       </nav>

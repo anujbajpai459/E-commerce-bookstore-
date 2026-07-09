@@ -1,15 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-
-import list from "../../public/list.json";
+import axios from "axios";
 import Cards from "./Cards";
 
 const Freebook = () => {
-  const filterData = list.filter(
-    (data) => data.category === "Free"
-  );
+  const [book, setBook] = useState([]);
+
+  useEffect(() => {
+    const getBook = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/book");
+        setBook(
+          res.data.filter((data) => data.category === "Free")
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getBook();
+  }, []);
 
   const settings = {
     dots: true,
@@ -42,19 +54,18 @@ const Freebook = () => {
 
   return (
     <div className="max-w-screen-2xl container mx-auto md:px-20 px-4 py-10 dark:bg-slate-900 dark:text-white">
-      <h1 className="text-3xl font-bold text-black dark:text-white">
+      <h1 className="text-3xl font-bold">
         Free Offered Courses
       </h1>
 
       <p className="mt-2 text-gray-600 dark:text-slate-300">
-        Explore our collection of free books and start
-        learning today.
+        Explore our collection of free books and start learning today.
       </p>
 
       <div className="mt-10">
         <Slider {...settings}>
-          {filterData.map((item) => (
-            <div key={item.id} className="px-2">
+          {book.map((item) => (
+            <div key={item._id} className="px-2">
               <Cards item={item} />
             </div>
           ))}
